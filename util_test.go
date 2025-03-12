@@ -19,37 +19,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCopyAndInsensitiviseMap(t *testing.T) {
-	var (
-		given = map[string]any{
-			"Foo": 32,
-			"Bar": map[any]any{
-				"ABc": "A",
-				"cDE": "B",
-			},
-		}
-		expected = map[string]any{
-			"foo": 32,
-			"bar": map[string]any{
-				"abc": "A",
-				"cde": "B",
-			},
-		}
-	)
-
-	got := copyAndInsensitiviseMap(given)
-
-	assert.Equal(t, expected, got)
-	_, ok := given["foo"]
-	assert.False(t, ok)
-	_, ok = given["bar"]
-	assert.False(t, ok)
-
-	m := given["Bar"].(map[any]any)
-	_, ok = m["ABc"]
-	assert.True(t, ok)
-}
-
 func TestAbsPathify(t *testing.T) {
 	skipWindows(t)
 

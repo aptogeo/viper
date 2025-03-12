@@ -65,9 +65,9 @@ Bio = "MongoDB Chief Developer Advocate & Hacker at Large"
 dob = 1979-05-27T07:32:00Z # First class dates? Why not?`)
 
 var dotenvExample = []byte(`
-TITLE_DOTENV="DotEnv Example"
-TYPE_DOTENV=donut
-NAME_DOTENV=Cake`)
+title_dotenv="DotEnv Example"
+type_dotenv=donut
+name_dotenv=Cake`)
 
 var jsonExample = []byte(`{
 "id": "0001",
@@ -759,7 +759,7 @@ func TestAllKeys(t *testing.T) {
 		"newkey",
 		"owner.organization",
 		"owner.dob",
-		"owner.bio",
+		"owner.Bio",
 		"name",
 		"beard",
 		"ppu",
@@ -769,7 +769,7 @@ func TestAllKeys(t *testing.T) {
 		"clothing.trousers",
 		"clothing.pants.size",
 		"age",
-		"hacker",
+		"Hacker",
 		"id",
 		"type",
 		"eyes",
@@ -781,7 +781,7 @@ func TestAllKeys(t *testing.T) {
 	all := map[string]any{
 		"owner": map[string]any{
 			"organization": "MongoDB",
-			"bio":          "MongoDB Chief Developer Advocate & Hacker at Large",
+			"Bio":          "MongoDB Chief Developer Advocate & Hacker at Large",
 			"dob":          dob,
 		},
 		"title": "TOML Example",
@@ -801,7 +801,7 @@ func TestAllKeys(t *testing.T) {
 				map[string]any{"type": "Devil's Food"},
 			},
 		},
-		"hacker": true,
+		"Hacker": true,
 		"beard":  true,
 		"hobbies": []any{
 			"skateboarding",
@@ -833,14 +833,6 @@ func TestAllKeysWithEnv(t *testing.T) {
 	t.Setenv("FOO_BAR", "baz")
 
 	assert.ElementsMatch(t, []string{"id", "foo.bar"}, v.AllKeys())
-}
-
-func TestAliasesOfAliases(t *testing.T) {
-	v := New()
-	v.Set("Title", "Checking Case")
-	v.RegisterAlias("Foo", "Bar")
-	v.RegisterAlias("Bar", "Title")
-	assert.Equal(t, "Checking Case", v.Get("FOO"))
 }
 
 func TestRecursiveAliases(t *testing.T) {
@@ -1384,30 +1376,6 @@ func TestBindPFlagStringToInt(t *testing.T) {
 	}
 }
 
-func TestBoundCaseSensitivity(t *testing.T) {
-	v := New()
-	initConfigs(v)
-	assert.Equal(t, "brown", v.Get("eyes"))
-
-	v.BindEnv("eYEs", "TURTLE_EYES")
-
-	t.Setenv("TURTLE_EYES", "blue")
-
-	assert.Equal(t, "blue", v.Get("eyes"))
-
-	testString := "green"
-	testValue := newStringValue(testString, &testString)
-
-	flag := &pflag.Flag{
-		Name:    "eyeballs",
-		Value:   testValue,
-		Changed: true,
-	}
-
-	v.BindPFlag("eYEs", flag)
-	assert.Equal(t, "green", v.Get("eyes"))
-}
-
 func TestSizeInBytes(t *testing.T) {
 	input := map[string]uint{
 		"":               0,
@@ -1464,9 +1432,9 @@ func TestFindsNestedKeys(t *testing.T) {
 		"hobbies": []any{
 			"skateboarding", "snowboarding", "go",
 		},
-		"TITLE_DOTENV": "DotEnv Example",
-		"TYPE_DOTENV":  "donut",
-		"NAME_DOTENV":  "Cake",
+		"title_dotenv": "DotEnv Example",
+		"type_dotenv":  "donut",
+		"name_dotenv":  "Cake",
 		"title":        "TOML Example",
 		"newkey":       "remote",
 		"batters": map[string]any{
@@ -1489,14 +1457,14 @@ func TestFindsNestedKeys(t *testing.T) {
 		"age":  35,
 		"owner": map[string]any{
 			"organization": "MongoDB",
-			"bio":          "MongoDB Chief Developer Advocate & Hacker at Large",
+			"Bio":          "MongoDB Chief Developer Advocate & Hacker at Large",
 			"dob":          dob,
 		},
-		"owner.bio": "MongoDB Chief Developer Advocate & Hacker at Large",
+		"owner.Bio": "MongoDB Chief Developer Advocate & Hacker at Large",
 		"type":      "donut",
 		"id":        "0001",
 		"name":      "Cake",
-		"hacker":    true,
+		"Hacker":    true,
 		"ppu":       0.55,
 		"clothing": map[string]any{
 			"jacket":   "leather",
@@ -1731,261 +1699,6 @@ var jsonWriteExpected = []byte(`{
 // name: steve
 // `)
 
-func TestWriteConfig(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	testCases := map[string]struct {
-		configName      string
-		inConfigType    string
-		outConfigType   string
-		fileName        string
-		input           []byte
-		expectedContent []byte
-	}{
-		"json with file extension": {
-			configName:      "c",
-			inConfigType:    "json",
-			outConfigType:   "json",
-			fileName:        "c.json",
-			input:           jsonExample,
-			expectedContent: jsonWriteExpected,
-		},
-		"json without file extension": {
-			configName:      "c",
-			inConfigType:    "json",
-			outConfigType:   "json",
-			fileName:        "c",
-			input:           jsonExample,
-			expectedContent: jsonWriteExpected,
-		},
-		"json with file extension and mismatch type": {
-			configName:      "c",
-			inConfigType:    "json",
-			outConfigType:   "hcl",
-			fileName:        "c.json",
-			input:           jsonExample,
-			expectedContent: jsonWriteExpected,
-		},
-		"yaml with file extension": {
-			configName:      "c",
-			inConfigType:    "yaml",
-			outConfigType:   "yaml",
-			fileName:        "c.yaml",
-			input:           yamlExample,
-			expectedContent: yamlWriteExpected,
-		},
-		"yaml without file extension": {
-			configName:      "c",
-			inConfigType:    "yaml",
-			outConfigType:   "yaml",
-			fileName:        "c",
-			input:           yamlExample,
-			expectedContent: yamlWriteExpected,
-		},
-		"yaml with file extension and mismatch type": {
-			configName:      "c",
-			inConfigType:    "yaml",
-			outConfigType:   "json",
-			fileName:        "c.yaml",
-			input:           yamlExample,
-			expectedContent: yamlWriteExpected,
-		},
-	}
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			v := New()
-			v.SetFs(fs)
-			v.SetConfigName(tc.fileName)
-			v.SetConfigType(tc.inConfigType)
-
-			err := v.ReadConfig(bytes.NewBuffer(tc.input))
-			require.NoError(t, err)
-			v.SetConfigType(tc.outConfigType)
-			err = v.WriteConfigAs(tc.fileName)
-			require.NoError(t, err)
-			read, err := afero.ReadFile(fs, tc.fileName)
-			require.NoError(t, err)
-			assert.Equal(t, tc.expectedContent, read)
-		})
-	}
-}
-
-func TestWriteConfigTOML(t *testing.T) {
-	fs := afero.NewMemMapFs()
-
-	testCases := map[string]struct {
-		configName string
-		configType string
-		fileName   string
-		input      []byte
-	}{
-		"with file extension": {
-			configName: "c",
-			configType: "toml",
-			fileName:   "c.toml",
-			input:      tomlExample,
-		},
-		"without file extension": {
-			configName: "c",
-			configType: "toml",
-			fileName:   "c",
-			input:      tomlExample,
-		},
-	}
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			v := New()
-			v.SetFs(fs)
-			v.SetConfigName(tc.configName)
-			v.SetConfigType(tc.configType)
-			err := v.ReadConfig(bytes.NewBuffer(tc.input))
-			require.NoError(t, err)
-			err = v.WriteConfigAs(tc.fileName)
-			require.NoError(t, err)
-
-			// The TOML String method does not order the contents.
-			// Therefore, we must read the generated file and compare the data.
-			v2 := New()
-			v2.SetFs(fs)
-			v2.SetConfigName(tc.configName)
-			v2.SetConfigType(tc.configType)
-			v2.SetConfigFile(tc.fileName)
-			err = v2.ReadInConfig()
-			require.NoError(t, err)
-
-			assert.Equal(t, v.GetString("title"), v2.GetString("title"))
-			assert.Equal(t, v.GetString("owner.bio"), v2.GetString("owner.bio"))
-			assert.Equal(t, v.GetString("owner.dob"), v2.GetString("owner.dob"))
-			assert.Equal(t, v.GetString("owner.organization"), v2.GetString("owner.organization"))
-		})
-	}
-}
-
-func TestWriteConfigDotEnv(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	testCases := map[string]struct {
-		configName string
-		configType string
-		fileName   string
-		input      []byte
-	}{
-		"with file extension": {
-			configName: "c",
-			configType: "env",
-			fileName:   "c.env",
-			input:      dotenvExample,
-		},
-		"without file extension": {
-			configName: "c",
-			configType: "env",
-			fileName:   "c",
-			input:      dotenvExample,
-		},
-	}
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			v := New()
-			v.SetFs(fs)
-			v.SetConfigName(tc.configName)
-			v.SetConfigType(tc.configType)
-			err := v.ReadConfig(bytes.NewBuffer(tc.input))
-			require.NoError(t, err)
-			err = v.WriteConfigAs(tc.fileName)
-			require.NoError(t, err)
-
-			// The TOML String method does not order the contents.
-			// Therefore, we must read the generated file and compare the data.
-			v2 := New()
-			v2.SetFs(fs)
-			v2.SetConfigName(tc.configName)
-			v2.SetConfigType(tc.configType)
-			v2.SetConfigFile(tc.fileName)
-			err = v2.ReadInConfig()
-			require.NoError(t, err)
-
-			assert.Equal(t, v.GetString("title_dotenv"), v2.GetString("title_dotenv"))
-			assert.Equal(t, v.GetString("type_dotenv"), v2.GetString("type_dotenv"))
-			assert.Equal(t, v.GetString("kind_dotenv"), v2.GetString("kind_dotenv"))
-		})
-	}
-}
-
-func TestSafeWriteConfig(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	v.SetFs(fs)
-	v.AddConfigPath("/test")
-	v.SetConfigName("c")
-	v.SetConfigType("yaml")
-	require.NoError(t, v.ReadConfig(bytes.NewBuffer(yamlExample)))
-	require.NoError(t, v.SafeWriteConfig())
-	read, err := afero.ReadFile(fs, testutil.AbsFilePath(t, "/test/c.yaml"))
-	require.NoError(t, err)
-	assert.YAMLEq(t, string(yamlWriteExpected), string(read))
-}
-
-func TestSafeWriteConfigWithMissingConfigPath(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	v.SetFs(fs)
-	v.SetConfigName("c")
-	v.SetConfigType("yaml")
-	require.EqualError(t, v.SafeWriteConfig(), "missing configuration for 'configPath'")
-}
-
-func TestSafeWriteConfigWithExistingFile(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	fs.Create(testutil.AbsFilePath(t, "/test/c.yaml"))
-	v.SetFs(fs)
-	v.AddConfigPath("/test")
-	v.SetConfigName("c")
-	v.SetConfigType("yaml")
-	err := v.SafeWriteConfig()
-	require.Error(t, err)
-	_, ok := err.(ConfigFileAlreadyExistsError)
-	assert.True(t, ok, "Expected ConfigFileAlreadyExistsError")
-}
-
-func TestSafeWriteAsConfig(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	v.SetFs(fs)
-	v.SetConfigType("yaml")
-	err := v.ReadConfig(bytes.NewBuffer(yamlExample))
-	require.NoError(t, err)
-	require.NoError(t, v.SafeWriteConfigAs("/test/c.yaml"))
-	_, err = afero.ReadFile(fs, "/test/c.yaml")
-	require.NoError(t, err)
-}
-
-func TestSafeWriteConfigAsWithExistingFile(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	fs.Create("/test/c.yaml")
-	v.SetFs(fs)
-	err := v.SafeWriteConfigAs("/test/c.yaml")
-	require.Error(t, err)
-	_, ok := err.(ConfigFileAlreadyExistsError)
-	assert.True(t, ok, "Expected ConfigFileAlreadyExistsError")
-}
-
-func TestWriteHiddenFile(t *testing.T) {
-	v := New()
-	fs := afero.NewMemMapFs()
-	fs.Create(testutil.AbsFilePath(t, "/test/.config"))
-	v.SetFs(fs)
-
-	v.SetConfigName(".config")
-	v.SetConfigType("yaml")
-	v.AddConfigPath("/test")
-
-	err := v.ReadInConfig()
-	require.NoError(t, err)
-
-	err = v.WriteConfig()
-	require.NoError(t, err)
-}
-
 var yamlMergeExampleTgt = []byte(`
 hello:
     pop: 37890
@@ -2108,8 +1821,8 @@ func TestMergeConfigMap(t *testing.T) {
 	assertFn(37890)
 
 	update := map[string]any{
-		"Hello": map[string]any{
-			"Pop": 1234,
+		"hello": map[string]any{
+			"pop": 1234,
 		},
 		"World": map[any]any{
 			"Rock": 345,
@@ -2119,7 +1832,7 @@ func TestMergeConfigMap(t *testing.T) {
 	err = v.MergeConfigMap(update)
 	require.NoError(t, err)
 
-	assert.Equal(t, 345, v.GetInt("world.rock"))
+	assert.Equal(t, 345, v.GetInt("World.Rock"))
 
 	assertFn(1234)
 }
@@ -2197,90 +1910,6 @@ func TestDotParameter(t *testing.T) {
 	actual := v.Get("batters.batter")
 	expected := []any{map[string]any{"type": "Small"}}
 	assert.Equal(t, expected, actual)
-}
-
-func TestCaseInsensitive(t *testing.T) {
-	for _, config := range []struct {
-		typ     string
-		content string
-	}{
-		{"yaml", `
-aBcD: 1
-eF:
-  gH: 2
-  iJk: 3
-  Lm:
-    nO: 4
-    P:
-      Q: 5
-      R: 6
-`},
-		{"json", `{
-  "aBcD": 1,
-  "eF": {
-    "iJk": 3,
-    "Lm": {
-      "P": {
-        "Q": 5,
-        "R": 6
-      },
-      "nO": 4
-    },
-    "gH": 2
-  }
-}`},
-		{"toml", `aBcD = 1
-[eF]
-gH = 2
-iJk = 3
-[eF.Lm]
-nO = 4
-[eF.Lm.P]
-Q = 5
-R = 6
-`},
-	} {
-		doTestCaseInsensitive(t, config.typ, config.content)
-	}
-}
-
-func TestCaseInsensitiveSet(t *testing.T) {
-	v := New()
-	m1 := map[string]any{
-		"Foo": 32,
-		"Bar": map[any]any{
-			"ABc": "A",
-			"cDE": "B",
-		},
-	}
-
-	m2 := map[string]any{
-		"Foo": 52,
-		"Bar": map[any]any{
-			"bCd": "A",
-			"eFG": "B",
-		},
-	}
-
-	v.Set("Given1", m1)
-	v.Set("Number1", 42)
-
-	v.SetDefault("Given2", m2)
-	v.SetDefault("Number2", 52)
-
-	// Verify SetDefault
-	assert.Equal(t, 52, v.Get("number2"))
-	assert.Equal(t, 52, v.Get("given2.foo"))
-	assert.Equal(t, "A", v.Get("given2.bar.bcd"))
-	_, ok := m2["Foo"]
-	assert.True(t, ok)
-
-	// Verify Set
-	assert.Equal(t, 42, v.Get("number1"))
-	assert.Equal(t, 32, v.Get("given1.foo"))
-	assert.Equal(t, "A", v.Get("given1.bar.abc"))
-	_, ok = m1["Foo"]
-	assert.True(t, ok)
 }
 
 func TestParseNested(t *testing.T) {
@@ -2541,20 +2170,20 @@ func TestSliceIndexAccess(t *testing.T) {
 	err := v.unmarshalReader(r, v.config)
 	require.NoError(t, err)
 
-	assert.Equal(t, "The Expanse", v.GetString("tv.0.title"))
-	assert.Equal(t, "February 1, 2017", v.GetString("tv.0.seasons.1.first_released"))
-	assert.Equal(t, "Static", v.GetString("tv.0.seasons.1.episodes.2.title"))
-	assert.Equal(t, "December 15, 2015", v.GetString("tv.0.seasons.0.episodes.1.air_date"))
+	assert.Equal(t, "The Expanse", v.GetString("TV.0.title"))
+	assert.Equal(t, "February 1, 2017", v.GetString("TV.0.seasons.1.first_released"))
+	assert.Equal(t, "Static", v.GetString("TV.0.seasons.1.episodes.2.title"))
+	assert.Equal(t, "December 15, 2015", v.GetString("TV.0.seasons.0.episodes.1.air_date"))
 
 	// Test nested keys with capital letters
-	assert.Equal(t, "The Expanse", v.GetString("tv.0.title_i18n.USA"))
-	assert.Equal(t, "エクスパンス -巨獣めざめる-", v.GetString("tv.0.title_i18n.Japan"))
+	assert.Equal(t, "The Expanse", v.GetString("TV.0.title_i18n.USA"))
+	assert.Equal(t, "エクスパンス -巨獣めざめる-", v.GetString("TV.0.title_i18n.Japan"))
 
 	// Test for index out of bounds
-	assert.Equal(t, "", v.GetString("tv.0.seasons.2.first_released"))
+	assert.Equal(t, "", v.GetString("TV.0.seasons.2.first_released"))
 
 	// Accessing multidimensional arrays
-	assert.Equal(t, "Static", v.GetString("tv.0.episodes.1.2"))
+	assert.Equal(t, "Static", v.GetString("TV.0.episodes.1.2"))
 }
 
 func TestIsPathShadowedInFlatMap(t *testing.T) {

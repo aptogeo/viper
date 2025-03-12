@@ -1,8 +1,6 @@
 package dotenv
 
 import (
-	"strings"
-
 	"github.com/spf13/cast"
 )
 
@@ -31,7 +29,7 @@ func flattenAndMergeMap(shadow, m map[string]any, prefix, delimiter string) map[
 			m2 = cast.ToStringMap(val)
 		default:
 			// immediate value
-			shadow[strings.ToLower(fullKey)] = val
+			shadow[fullKey] = val
 			continue
 		}
 		// recursively merge to shadow map
