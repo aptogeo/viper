@@ -1,12 +1,12 @@
-module github.com/spf13/viper/remote
+module github.com/aptogeo/viper/remote
 
 go 1.21.0
 
-replace github.com/spf13/viper => ../
+replace github.com/aptogeo/viper => ../
 
 require (
 	github.com/sagikazarmark/crypt v0.26.0
-	github.com/spf13/viper v1.20.0-alpha.6
+	github.com/aptogeo/viper v1.20.0-alpha.6
 )
 
 require (

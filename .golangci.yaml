@@ -6,7 +6,7 @@ linters-settings:
         sections:
             - standard
             - default
-            - prefix(github.com/spf13/viper)
+            - prefix(github.com/aptogeo/viper)
     gocritic:
         # Enable multiple checks by tags. See "Tags" section in https://github.com/go-critic/go-critic#usage.
         enabled-tags:
@@ -18,7 +18,7 @@ linters-settings:
             - importShadow
             - unnamedResult
     goimports:
-        local-prefixes: github.com/spf13/viper
+        local-prefixes: github.com/aptogeo/viper
 
 linters:
     disable-all: true

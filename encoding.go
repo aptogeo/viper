@@ -5,10 +5,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/viper/internal/encoding/dotenv"
-	"github.com/spf13/viper/internal/encoding/json"
-	"github.com/spf13/viper/internal/encoding/toml"
-	"github.com/spf13/viper/internal/encoding/yaml"
+	"github.com/aptogeo/viper/internal/encoding/dotenv"
+	"github.com/aptogeo/viper/internal/encoding/json"
+	"github.com/aptogeo/viper/internal/encoding/toml"
+	"github.com/aptogeo/viper/internal/encoding/yaml"
 )
 
 // Encoder encodes Viper's internal data structures into a byte representation.
